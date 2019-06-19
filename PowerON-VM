@@ -1,0 +1,34 @@
+function PowerON-VM {
+
+param (
+[parameter(Mandatory=$true)]
+[string]$VCNAME,
+[string]$VCUSER,
+[string]$VCPASS,
+[string]$VMNAME
+)
+
+$vconn = Connect-VIServer $VCNAME -User $VCUSER -Password $VCPASS  -Force 
+
+
+if  ($vconn.IsConnected -eq 'true') {
+    Write-Host "I am connected"
+    $vmstatus = get-vm $VMNAME
+        if ($vmstatus.PowerState -eq "PoweredOn") {
+        write-host "VM is already powered ON"
+        }
+        if ($vmstatus.PowerState -eq "PoweredOff") {
+        write-host "VM is now powering ON"
+        start-vm -vm $VMNAME -RunAsync
+        }
+        else {
+            write-host "unknown vm status"
+        }
+    }
+    else
+    {
+    write-host "You are not connected to VC"
+    }
+}
+
+PowerON-VM <VC name> <user name> <password> <VM_TO_POWERON>
