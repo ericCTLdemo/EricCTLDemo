@@ -1,0 +1,20 @@
+ Set-Location C:\xfer\temp
+ $str = gc .\praw.csv 
+ 
+ $str2 = foreach($line in $str){
+ if ($line -like "*Exit code*")
+ {
+ 
+ }
+ 
+   else {
+   $line
+    }
+ }
+
+ if (test-path .\final.csv) 
+ {
+ remove-item 
+ }
+
+  $str2.replace('"",""','","') |out-file final.csv -Encoding UTF8
