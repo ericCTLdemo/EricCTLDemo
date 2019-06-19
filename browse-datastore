@@ -1,0 +1,11 @@
+function browse-datastore {
+param (
+[parameter(Mandatory=$true)]
+[string]$DSNAME
+)
+$CTLDS = get-datastore $DSNAME
+New-PSDrive -location $CTLDS -Name ds -PSProvider VimDatastore -Root "\"
+set-location ds:\
+gci
+}
+browse-datastore <parameter>
