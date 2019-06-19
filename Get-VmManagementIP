@@ -1,0 +1,21 @@
+### How to get management IP on each host on a cluster?
+
+PowerCLI C:\Program Files (x86)\VMware\Infrastructure\vSphere PowerCLI> Get-Cluster <ClusterName> |Get-VMHost |Get-VMHostNetworkAdapter|? { $_.name -eq "vmk0" } |Select vmhost,ip |Sort-Object
+
+VMHost                                                                IP
+------                                                                --
+VMhostName01                                           		        10.x.x.1
+VMhostName02                                           		        10.x.x.2
+VMhostName03                                          		        10.x.x.3
+VMhostName04                                          		        10.x.x.4
+
+
+
+PowerCLI C:\Program Files (x86)\VMware\Infrastructure\vSphere PowerCLI> Get-Cluster <ClusterName> |get-vmhost |Select-Object Name, @{n='EsxHost Model'; e= {$_.model}}, @{n='ESX Version'; e={$_.version}} , @{n='Host State'; e={$_.state}}
+
+Name                               EsxHost Model                      ESX Version                                                Host State
+----                               -------------                      -----------                                                ----------
+VMhostName01			                  ProLiant DL360 Gen9                5.5.0                                                       Connected
+VMhostName02		                    ProLiant DL360 Gen9                5.5.0                                                       Connected
+VMhostName03		                    ProLiant DL360 Gen9                5.5.0                                                       Connected
+VMhostName04			                  ProLiant DL360 Gen9                5.5.0                                                       Connected
