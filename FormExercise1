@@ -1,0 +1,167 @@
+# Load required assemblies
+[void] [System.Reflection.Assembly]::LoadWithPartialName(“System.Windows.Forms”) 
+[System.Windows.Forms.Application]::EnableVisualStyles()
+
+         
+#main form
+Add-Type -AssemblyName System.Windows.Forms
+$Form = New-Object system.Windows.Forms.Form
+$Form.Size = New-Object System.Drawing.Size(832,528)
+$form.Text = "Connect VCenter"
+$form.StartPosition = “CenterScreen”
+
+
+# Adding a listView control to Form, which will hold all process information
+$Global:listviewform = New-Object System.Windows.Forms.ListView
+    $listviewform.Location = New-Object System.Drawing.Size(8,200)
+    $listviewform.Size = New-Object System.Drawing.Size(800,202)
+    $listviewform.Anchor = [System.Windows.Forms.AnchorStyles]::Bottom -bor
+    [System.Windows.Forms.AnchorStyles]::Right -bor
+    [System.Windows.Forms.AnchorStyles]::Top -bor
+    [System.Windows.Forms.AnchorStyles]::Left
+    $listviewform.View = "Details"
+    $listviewform.FullRowSelect = $true
+    $listviewform.MultiSelect = $true
+    $listviewform.Sorting = "None"
+    $listviewform.AllowColumnReorder = $true
+    $listviewform.GridLines = $true
+    $listviewform.Add_ColumnClick({SortListView $_.Column})
+    $Form.Controls.Add($listviewform)
+
+#label for the vm
+$label = New-Object system.Windows.Forms.label
+$label.text = "Click the button to check the status"
+$label.autosize = $true
+$form.Controls.Add($label)
+
+
+$Button = New-Object System.Windows.Forms.Button
+$Button.Location = New-Object System.Drawing.Size(30,80)
+$Button.Size = New-Object System.Drawing.Size(120,23)
+$Button.Text = "Check"
+
+$Buttongetvm = New-Object System.Windows.Forms.Button
+$Buttongetvm.Location = New-Object System.Drawing.Size(30,110)
+$Buttongetvm.Size = New-Object System.Drawing.Size(120,23)
+$Buttongetvm.Text = "get-vm"
+
+$ButtonCancel = New-Object System.Windows.Forms.Button
+$ButtonCancel.Location = New-Object System.Drawing.Size(150,80)
+$ButtonCancel.Size = New-Object System.Drawing.Size(120,23)
+$ButtonCancel.Text = "cancel"
+
+$label2 = New-Object system.Windows.Forms.label
+$Label2.Text = ""
+$Label2.Location  = New-Object System.Drawing.Point(20,140)
+$label2.autosize = $true
+
+$form.Controls.Add($label2)
+
+$textBox = New-Object System.Windows.Forms.TextBox
+$textBox.Location = New-Object System.Drawing.Point(10,30)
+$textBox.Size = New-Object System.Drawing.Size(260,20)
+$textbox.Text = "ServerHostName"
+$form.Controls.Add($textBox)
+
+$textBoxVM = New-Object System.Windows.Forms.TextBox
+$textBoxVM.Location = New-Object System.Drawing.Point(10,60)
+$textBoxVM.Size = New-Object System.Drawing.Size(260,20)
+$textboxVM.Text = "ServerName"
+$form.Controls.Add($textBoxVM)
+
+
+
+$form.Controls.Add($ButtonCancel)
+$ButtonCancel.add_click({
+$Form.Close()
+
+})
+
+$form.Controls.Add($Button)
+$Button.Add_Click( {
+
+getprocesses
+
+$textbox.Text = "hello eric"
+
+} )
+
+
+$form.Controls.Add($Buttongetvm)
+$Buttongetvm.Add_Click( {
+getvmstate
+} )
+
+
+$Form.ShowDialog()
+
+
+
+function CTLconnectVC {
+
+param (
+[parameter(Mandatory=$true)]
+[string]$VCNAME
+)
+
+Set-PowerCLIConfiguration -InvalidCertificateAction ignore -confirm:$false
+$vconn = Connect-VIServer $VCNAME -Force
+
+if  ($vconn.IsConnected -eq 'true') {
+    
+    $label2.text = "I AM CONNECTED"
+ 
+     }
+     else 
+     {
+         $label2.text = "connectio problem not able to connect to VC"
+     }
+          
+     } 
+      
+
+function getvmstate{
+    $listviewform.Items.Clear()
+    $listviewform.Columns.Clear()
+
+    $getvm = get-vm $textboxVM.Text |select name,powerstate
+
+    foreach ($vmdetails in $getvm){
+    $listviewform.Items.Add("$_.") |out-null
+    
+    }
+
+
+}
+
+Function getprocesses {
+
+$listviewform.Items.Clear()
+$listviewform.Columns.Clear()
+
+$processes = Get-Process |select id,processname 
+$processProperties = $processes[0].psObject.properties
+$processProperties |ForEach-Object {
+$listviewform.Columns.Add($_.name) |Out-Null
+}
+
+    ForEach ($Process in $Processes){
+ 
+
+        $ProcessListViewItem = New-Object System.Windows.Forms.ListViewItem($Process.Id)
+ 
+
+        $Process.psObject.Properties | Where {$_.Name -ne "Id"} | ForEach-Object {
+            $ColumnName = $_.Name
+              $r.SubItems.Add("$($Process.$ColumnName)") 
+        }
+
+
+          $ProcessListViewItem.Items.Add($ProcessListViewItem)
+ 
+    }
+ 
+    # Resize all columns of the listView to fit their contents
+    $listviewform.AutoResizeColumns("HeaderSize")
+ 
+}
