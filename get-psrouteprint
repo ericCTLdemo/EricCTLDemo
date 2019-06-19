@@ -1,0 +1,43 @@
+function PSrouteprint {
+#initialize the property to catch if object has value
+$ActiveCount = Get-NetRoute |measure |select -property count
+$PersistentCount = Get-WmiObject Win32_IP4PersistedRouteTable |select -Property name
+$Nicstatus = Get-NetAdapter |select -Property status
+
+#check and display status of the Network Interface
+Write-output "================================================================="
+write-output "Network Interface"
+    if (!($Nicstatus.status -eq "up"))
+    {
+        write-output "No Ethernet enabled"
+    }
+    else {
+        Get-NetAdapter |ft -Property InterfaceDescription, MacAddress
+    }
+#Check if route exsist and display the active routing table for Ethernet network
+write-output "================================================================="
+write-output "Active Routes:"
+    if (!($ActiveCount.Count -gt "0"))
+    {
+        write-output "No active route"
+    }
+    else {
+        Get-NetAdapter | Where-Object -FilterScript {$_.name -like "*Ethernet*"} |Get-NetRoute |  ft @{N="Network Destination";E={$_.DestinationPrefix}},@{N="GateWay";E={$_.NextHop}},@{N="Interface";E={$_.InterfaceAlias}},@{N="Metric";E={$_.RouteMetric}}
+    }
+
+#Check if route exsist and display the Persistent Routes table for Ethernet network
+write-output "================================================================="
+write-output "Persistent Routes:"
+    if (!($PersistentCount.Count -gt "0"))
+    {
+    write-output "No Persistent route"
+    }
+    else {
+    Get-WmiObject Win32_IP4PersistedRouteTable  |  ft @{N="Network Address";E={$_.name}},@{N="Netmask";E={$_.Mask}},@{N="Gateway Address";E={$_.NextHop}},@{N="Metric";E={$_.Metric1}}
+    }
+}
+
+PSrouteprint |Out-File .\outfinal.txt
+PSrouteprint
+
+
