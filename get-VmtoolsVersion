@@ -1,0 +1,9 @@
+function get-VmtoolsVersion {
+	$binpath = Test-Path  "C:\Program Files\VMware\VMware Tools"
+	if ($binpath -eq 'True' ){
+		set-location "C:\Program Files\VMware\VMware Tools"
+		cmd.exe /c "VMwareToolboxCmd.exe -v"
+	    } else {
+	write-host "vmtools is not installed"
+	}
+}
