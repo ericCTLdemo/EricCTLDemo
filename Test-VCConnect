@@ -1,0 +1,23 @@
+param (
+[parameter(Mandatory=$true)]
+[string]$VCNAME,
+[string]$VCUSER,
+[string]$VCPASS
+)
+
+$vconn = Connect-VIServer $VCNAME -User $VCUSER -Password $VCPASS  -Force
+
+
+function Test-VCConnect {
+
+
+if  ($vconn.IsConnected -eq 'true') {
+    Write-Host "I am connected"
+    }
+    else
+    {
+    write-host "I am not connected"
+    }
+}
+
+Test-VCConnect
