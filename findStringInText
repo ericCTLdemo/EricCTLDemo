@@ -1,0 +1,17 @@
+ Set-Location C:\xfer\temp
+ $str = gc .\crqstring.txt 
+ 
+foreach($line in $str){
+ if ($line -like "*crq*")
+ {
+    Write-Host "found"
+    $value = $line |Select-String -Pattern "crq"
+    $value.Line.Split(" ")[1]
+        
+ }
+ 
+   else {
+    Write-Host "not found"
+    }
+ }
+
