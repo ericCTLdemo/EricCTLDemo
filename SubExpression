@@ -1,0 +1,11 @@
+on string when you are calling property of an object you need to use substring 
+
+$() <<---- syntax (Evaluates an expression before adding it to a string)
+
+
+$formHelloEric_Load={
+	#TODO: Initialize Form Controls here
+	$os = Get-CimInstance -ClassName Win32_Operatingsystem
+		$textbox1.Text = "$($os.caption)" 
+	
+}
